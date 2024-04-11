@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.basex.api.client.ClientSession;
 import org.basex.core.*;
 import org.basex.core.cmd.*;
@@ -48,8 +49,14 @@ public class PR32CreateMain {
            logger.info(myQuery);
            logger.info("Query Result:");
            logger.info(result);
-           //Save the result 
+           // Save the result 
            saveResultAsXML(result, "./data/output/resultConsulta1.xml");
+
+           // Read the result
+           String data = readXPathQueryFromFile("./data/output/resultConsulta1.xml"); 
+
+           //   String decodedData = StringEscapeUtils.unescapeHtml4(data);
+        
 
 
         } catch (BaseXException e) {

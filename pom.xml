@@ -135,7 +135,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>cat.iesesteveterradas.Main</mainClass>
+                            <mainClass>cat.iesesteveterradas.PR32CreateMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
