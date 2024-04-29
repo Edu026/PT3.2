@@ -8,26 +8,34 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.basex.api.client.ClientSession;
 import org.basex.core.*;
 import org.basex.core.cmd.*;
+import org.apache.commons.text.StringEscapeUtils;
 
-
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import opennlp.tools.stemmer.snowball.spanishStemmer;
+import java.util.logging.*;
+
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 
 
 public class PR32CreateMain {
-    private static final Logger logger = LoggerFactory.getLogger(PR32CreateMain.class);    
-
-    
+    private static final Logger logger  = Logger.getLogger("MyLogger");
+     
     public static void main(String[] args) throws IOException {
         // Initialize connection details
        String host = "127.0.0.1";
        int port = 1984;
        String username = "admin"; // Default username
        String password = "admin"; // Default password
+
+       // Generate Logger
+       generateLogger(logger);
 
        // Establish a connection to the BaseX server
        try (ClientSession session = new ClientSession(host, port, username, password)) {
@@ -55,14 +63,16 @@ public class PR32CreateMain {
            // Read the result
            String data = readXPathQueryFromFile("./data/output/resultConsulta1.xml"); 
 
-           //   String decodedData = StringEscapeUtils.unescapeHtml4(data);
-        
+           // Convertir entitats HTML en caràcters corresponents
+           String unescapedString = StringEscapeUtils.unescapeHtml4(data);
 
+           logger.info("Converted result:");
+           logger.info(unescapedString);
 
         } catch (BaseXException e) {
-            logger.error("Error connecting or executing the query: " + e.getMessage());
+            logger.warning("Error connecting or executing the query: " + e.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warning(e.getMessage());
         }        
     }
         // Método para guardar el resultado como un archivo XML
@@ -78,4 +88,23 @@ public class PR32CreateMain {
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         }
     }
+
+    public static void generateLogger(Logger logger){
+        FileHandler fh;
+        String currentWorkingDirectory = System.getProperty("user.dir");
+
+        try {
+            // Configura el manejador de archivos para guardar los logs en "application.log"
+            fh = new FileHandler(currentWorkingDirectory + "/data/logs/PR32CreateMain.java.log");
+            logger.addHandler(fh);
+
+            // Formateador simple para el archivo de logs
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+
+        } catch (Exception e) {
+            logger.warning("Ocurrió un error al configurar el archivo de logs: " + e.getMessage());
+        }
+    }
+
 }
