@@ -11,11 +11,19 @@ import java.util.stream.Collectors;
 import org.basex.api.client.ClientSession;
 import org.basex.core.*;
 import org.basex.core.cmd.*;
+import org.bson.Document;
 import org.apache.commons.text.StringEscapeUtils;
 
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
 import opennlp.tools.stemmer.snowball.spanishStemmer;
+
+import java.util.Map;
+import java.util.List;
 import java.util.logging.*;
 
 import java.util.logging.FileHandler;
@@ -41,8 +49,6 @@ public class PR32CreateMain {
        try (ClientSession session = new ClientSession(host, port, username, password)) {
            logger.info("Connected to BaseX server.");
 
-           //session.execute(new Open("factbook")); 
-           
            session.execute(new Open("coffee.stackexchange"));
            String currentWorkingDirectory = System.getProperty("user.dir");
            System.out.println("Directorio de trabajo actual: " + currentWorkingDirectory);
@@ -66,8 +72,14 @@ public class PR32CreateMain {
            // Convertir entitats HTML en caràcters corresponents
            String unescapedString = StringEscapeUtils.unescapeHtml4(data);
 
-           logger.info("Converted result:");
-           logger.info(unescapedString);
+           // logger.info("Converted result:");
+           // logger.info(unescapedString);
+
+            // Insert in Mongo
+            List<Map<String,String>> extractFromPosts  = MongoTools.extractFromPosts(data);
+            MongoTools.MongoInsert(extractFromPosts);
+
+
 
         } catch (BaseXException e) {
             logger.warning("Error connecting or executing the query: " + e.getMessage());
@@ -75,14 +87,14 @@ public class PR32CreateMain {
             logger.warning(e.getMessage());
         }        
     }
-        // Método para guardar el resultado como un archivo XML
+
     public static void saveResultAsXML(String result, String filePath) throws IOException {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
             logger.info("File Saved");
             writer.println(result);
         }
     }
-        // Método para leer el contenido del archivo en una cadena
+
     public static String readXPathQueryFromFile(String filePath) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -106,5 +118,4 @@ public class PR32CreateMain {
             logger.warning("Ocurrió un error al configurar el archivo de logs: " + e.getMessage());
         }
     }
-
 }
