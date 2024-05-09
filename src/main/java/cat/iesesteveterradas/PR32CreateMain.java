@@ -67,7 +67,9 @@ public class PR32CreateMain {
            saveResultAsXML(result, "./data/output/resultConsulta1.xml");
 
            // Read the result
+           // String data = readXPathQueryFromFile("./data/output/resultConsulta1.xml"); 
            String data = readXPathQueryFromFile("./data/output/resultConsulta1.xml"); 
+
 
            // Convertir entitats HTML en caràcters corresponents
            String unescapedString = StringEscapeUtils.unescapeHtml4(data);
@@ -76,7 +78,7 @@ public class PR32CreateMain {
            // logger.info(unescapedString);
 
             // Insert in Mongo
-            List<Map<String,String>> extractFromPosts  = MongoTools.extractFromPosts(data);
+            List<Map<String,Object>> extractFromPosts  = MongoTools.extractFromPosts(data);
             MongoTools.MongoInsert(extractFromPosts);
 
 
