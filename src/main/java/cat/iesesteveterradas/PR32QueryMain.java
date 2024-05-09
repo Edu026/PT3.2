@@ -7,7 +7,8 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-
+import com.mongodb.client.model.Filters;
+import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,12 +57,21 @@ public class PR32QueryMain {
         return result.into(new ArrayList<>());
     }
 
-    // Método para obtener las preguntas que contienen alguna de las letras especificadas en el título
-    private static List<Document> getQuestionsWithLettersInTitle(MongoCollection<Document> collection, List<String> lettersToSearch) {
-        FindIterable<Document> result = collection.find(new Document("postTypeId", 1)
-                .append("title", new Document("$regex", ".*[" + String.join("", lettersToSearch) + "].*")));
-        return result.into(new ArrayList<>());
-    }
+// Método para obtener las preguntas que contienen alguna de las palabras especificadas en el título
+private static List<Document> getQuestionsWithLettersInTitle(MongoCollection<Document> collection, List<String> lettersToSearch) {
+    // Construir la expresión regular dinámicamente
+    
+    Bson filter = Filters.regex("title", String.join("|", lettersToSearch));
+    // Realizar la búsqueda
+    FindIterable<Document> result = collection.find(filter);
+
+    // Iterar sobre los resultados
+    for (Document document : result) {
+        System.out.println(document);
+}
+    return result.into(new ArrayList<>());
+}
+
 
     // Método para imprimir las preguntas
     private static void printQuestions(List<Document> questions) {
